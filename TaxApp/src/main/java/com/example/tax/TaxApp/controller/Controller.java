@@ -3,10 +3,12 @@
  */
 package com.example.tax.TaxApp.controller;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.Period;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -81,15 +83,21 @@ public class Controller {
 
     @PostMapping("/getTax")
     public EmployeeBean calculateTax(@RequestBody EmployeeBean employee) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String strDate = dateFormat.format(employee.getJoiningDate());
-        System.out.println("Converted String: " + strDate);
+      
+        Date input = new Date();
+        input = employee.getJoiningDate();
+        LocalDate date = input.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        System.out.println(date);
+        LocalDate endDate = LocalDate.of(2024, Month.APRIL, 30);
+        Period datePeriod = Period.between(date, endDate);
 
-        Period diff = Period.between(LocalDate.parse(strDate), LocalDate.parse("2024-03-30").plusDays(1));
-        System.out.println("Months : " + diff.getMonths());
-
-        Double yearSalary = employee.getSalary() * diff.getMonths();
-
+        long value = ChronoUnit.MONTHS.between(date, endDate);
+        Double yearSalary = employee.getSalary() * value;
+        if (date.getDayOfMonth() > 15) {
+            double perDaySalary = employee.getSalary() / 30;
+            double salaryThisMonth = (perDaySalary * 15);
+            yearSalary = yearSalary - salaryThisMonth;
+        }
         double tax = 0;
         double cess = 0;
         if (yearSalary > 250000 && yearSalary <= 500000) {
@@ -97,7 +105,7 @@ public class Controller {
         } else if (yearSalary > 500000 && yearSalary <= 1000000)
             tax = (yearSalary - 500000) * 0.2 + 250000 * 0.05;
         else if (yearSalary > 1000000) {
-            tax = (yearSalary - 1000000) * 0.3 + 250000 * 0.2 + 250000 * 0.05;
+            tax = (yearSalary - 1000000) * 0.3 + 500000 * 0.2 + 250000 * 0.05;
         }
 
         if (yearSalary > 2800000) {
