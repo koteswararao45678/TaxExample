@@ -9,8 +9,6 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,37 +33,22 @@ public class Controller {
 
     @PostMapping("/saveEmployeeDetails")
     public ResponseEntity<?> getFullname(@RequestBody @Validated EmployeeBean employee) throws BadRequest {
-        Map<String, Object> respJsonOutput = new LinkedHashMap<String, Object>();
         Optional<EmployeeBean> bean = Optional.ofNullable(employee);
         if (bean.get().getFirstName().isEmpty()) {
-            respJsonOutput.clear();
-            respJsonOutput.put("status", 400);
-            respJsonOutput.put("message", "First name should not be Empty");
-            return new ResponseEntity<>(respJsonOutput, HttpStatus.NOT_FOUND);
+            throw new BadRequest("First name should not be empty");
+
         }
         if (bean.get().getEmail().isEmpty()) {
-            respJsonOutput.clear();
-            respJsonOutput.put("status", 400);
-            respJsonOutput.put("message", "Last name should not be Empty");
-            return new ResponseEntity<>(respJsonOutput, HttpStatus.NOT_FOUND);
+            throw new BadRequest("Last name should not be Empty");
         }
         if (bean.get().getEmpId() <= 0) {
-            respJsonOutput.clear();
-            respJsonOutput.put("status", 400);
-            respJsonOutput.put("message", "Enter valid EmpID");
-            return new ResponseEntity<>(respJsonOutput, HttpStatus.NOT_FOUND);
+            throw new BadRequest("Enter valid EmpID");
         }
         if (bean.get().getPhoneNo().isEmpty()) {
-            respJsonOutput.clear();
-            respJsonOutput.put("status", 400);
-            respJsonOutput.put("message", "Phone Number Should not be empty");
-            return new ResponseEntity<>(respJsonOutput, HttpStatus.NOT_FOUND);
+            throw new BadRequest("Phone Number Should not be empty");
         }
         if (bean.get().getSalary() <= 1) {
-            respJsonOutput.clear();
-            respJsonOutput.put("status", 400);
-            respJsonOutput.put("message", "Please enter valid salry");
-            return new ResponseEntity<>(respJsonOutput, HttpStatus.NOT_FOUND);
+            throw new BadRequest("Please enter valid salry");
         }
 
         Employee emp = new Employee();
@@ -83,7 +66,7 @@ public class Controller {
 
     @PostMapping("/getTax")
     public EmployeeBean calculateTax(@RequestBody EmployeeBean employee) {
-      
+
         Date input = new Date();
         input = employee.getJoiningDate();
         LocalDate date = input.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
