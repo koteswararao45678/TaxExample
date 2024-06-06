@@ -32,3 +32,12 @@ response
     "salary": 1050000.0
 }
 
+2-------------
+{
+    "firstName": "Koteswararao",
+    "lastName": "Ramanadham",
+    "yearlySalary": 2100000.0,
+    "taxAmount": 282500.0,
+    "cessAmount": 0.0,
+    "employeeId": 7
+}
