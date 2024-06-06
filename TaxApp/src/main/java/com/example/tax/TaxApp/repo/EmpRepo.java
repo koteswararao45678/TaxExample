@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.tax.TaxApp.bean.Employee;
 
-public interface EmpRepo extends JpaRepository<Employee, Integer> {
+public interface EmpRepo extends JpaRepository<Employee, Long> {
 
 }

@@ -1,6 +1,3 @@
-/*
- * Creation : Jun 9, 2023
- */
 package com.example.tax.TaxApp.exception;
 
 public class CustomErrorResponse {

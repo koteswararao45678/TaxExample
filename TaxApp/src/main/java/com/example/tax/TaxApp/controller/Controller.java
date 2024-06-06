@@ -12,91 +12,90 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.websocket.server.PathParam;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.tax.TaxApp.bean.Employee;
 import com.example.tax.TaxApp.bean.EmployeeBean;
+import com.example.tax.TaxApp.bean.EmployeeTaxDetails;
 import com.example.tax.TaxApp.exception.BadRequest;
 import com.example.tax.TaxApp.repo.EmpRepo;
+import com.example.tax.TaxApp.service.EmployeeTaxService;
 
 @RestController
 public class Controller {
+	Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
     @Autowired
     EmpRepo repo;
+    
+    @Autowired
+    EmployeeTaxService employeeService = new EmployeeTaxService();
 
     @PostMapping("/saveEmployeeDetails")
-    public ResponseEntity<?> getFullname(@RequestBody @Validated EmployeeBean employee) throws BadRequest {
-        Optional<EmployeeBean> bean = Optional.ofNullable(employee);
+    public ResponseEntity<?> saveEmployeeDetails(@RequestBody Employee employee) throws BadRequest {
+    	LOGGER.info("Employee Controller - saveEmployeeDetails {}", employee);
+    	//    	validate user data
+    	validatemployee(employee);
+        
+        System.out.println(employee.getJoiningDate());
+        Employee dataSaved = repo.save(employee);
+        LOGGER.info("Employee details saved Success fully {}", dataSaved);
+        return new ResponseEntity<>(dataSaved, HttpStatus.CREATED);
+    }
+
+    private void validatemployee(Employee employee) throws BadRequest {
+    	Optional<Employee> bean = Optional.ofNullable(employee);
         if (bean.get().getFirstName().isEmpty()) {
             throw new BadRequest("First name should not be empty");
-
         }
         if (bean.get().getEmail().isEmpty()) {
             throw new BadRequest("Last name should not be Empty");
         }
-        if (bean.get().getEmpId() <= 0) {
-            throw new BadRequest("Enter valid EmpID");
-        }
-        if (bean.get().getPhoneNo().isEmpty()) {
-            throw new BadRequest("Phone Number Should not be empty");
-        }
+//        if (bean.get().getEmpId() <= 0) {
+//            throw new BadRequest("Enter valid EmpID");
+//        }
+//        if (bean.get().getPhoneNo().isEmpty()) {
+//            throw new BadRequest("Phone Number Should not be empty");
+//        }
         if (bean.get().getSalary() <= 1) {
             throw new BadRequest("Please enter valid salry");
         }
+		
+	}
 
-        Employee emp = new Employee();
-        emp.setEmail(employee.getEmail());
-        emp.setEmpId(employee.getEmpId());
-        emp.setFirstName(employee.getFirstName());
-        emp.setJoiningDate(employee.getJoiningDate());
-        emp.setLastName(employee.getLastName());
-        emp.setPhoneNo(employee.getPhoneNo().stream().collect(Collectors.joining(",")));
-        emp.setSalary(employee.getSalary());
-        System.out.println(emp.getJoiningDate());
-        repo.save(emp);
-        return new ResponseEntity<EmployeeBean>(HttpStatus.OK);
+	@GetMapping("/calculateEmployeeTax/{id}")
+    public ResponseEntity<EmployeeTaxDetails> calEmployeeTax(@PathVariable Long id) throws BadRequest {
+		
+		LOGGER.info("Employee Controller - calEmployeeTax {}", id);
+		
+		Employee employeeDetails = employeeService.findById(id).orElseThrow(() -> new BadRequest("Employee not found"));
+		// tax method
+    	EmployeeTaxDetails taxDetails = employeeService.calculateTax(employeeDetails);
+    	
+        return new ResponseEntity<>(taxDetails, HttpStatus.OK);
     }
-
-    @PostMapping("/getTax")
-    public EmployeeBean calculateTax(@RequestBody EmployeeBean employee) {
-
-        Date input = new Date();
-        input = employee.getJoiningDate();
-        LocalDate date = input.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        System.out.println(date);
-        LocalDate endDate = LocalDate.of(2024, Month.APRIL, 30);
-        Period datePeriod = Period.between(date, endDate);
-
-        long value = ChronoUnit.MONTHS.between(date, endDate);
-        Double yearSalary = employee.getSalary() * value;
-        if (date.getDayOfMonth() > 15) {
-            double perDaySalary = employee.getSalary() / 30;
-            double salaryThisMonth = (perDaySalary * 15);
-            yearSalary = yearSalary - salaryThisMonth;
-        }
-        double tax = 0;
-        double cess = 0;
-        if (yearSalary > 250000 && yearSalary <= 500000) {
-            tax = (yearSalary - 250000) * 0.05;
-        } else if (yearSalary > 500000 && yearSalary <= 1000000)
-            tax = (yearSalary - 500000) * 0.2 + 250000 * 0.05;
-        else if (yearSalary > 1000000) {
-            tax = (yearSalary - 1000000) * 0.3 + 500000 * 0.2 + 250000 * 0.05;
-        }
-
-        if (yearSalary > 2800000) {
-            cess = 2800000 * 0.02;
-        }
-
-        employee.setTotalTax(tax + cess);
-        return employee;
-    }
+    
+    
+//    @GetMapping("/koti")
+//    public String getMethod() {
+//    	
+//    	EmployeeTaxDetails taxDetails = taxService.calculateTaxAndCess(emp);
+//    	System.out.println(taxDetails);
+//    	
+//    	return "koti";
+//    }
 
 }

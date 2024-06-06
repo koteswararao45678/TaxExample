@@ -14,6 +14,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = BadRequest.class)
     public ResponseEntity<CustomErrorResponse> badRequest(Exception e) {
         CustomErrorResponse error = new CustomErrorResponse(400, e.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

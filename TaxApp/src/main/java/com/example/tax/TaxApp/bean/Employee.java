@@ -3,33 +3,48 @@
  */
 package com.example.tax.TaxApp.bean;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Employee {
 
     @Id
-    private int empId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long empId;
+    @Column
     private String firstName;
+    @Column
     private String lastName;
+    @Column
     private String email;
-    private String phoneNo;
-
-    private Date joiningDate;
+    @Column
+    @ElementCollection(targetClass=String.class)
+    private List<String> phoneNumbers;
+    @Column
+    private LocalDate joiningDate;
+    @Column
     private double salary;
 
-    public int getEmpId() {
-        return empId;
-    }
+   
 
-    public void setEmpId(int empId) {
-        this.empId = empId;
-    }
+	public Long getEmpId() {
+		return empId;
+	}
 
-    public String getFirstName() {
+	public void setEmpId(Long empId) {
+		this.empId = empId;
+	}
+
+	public String getFirstName() {
         return firstName;
     }
 
@@ -53,21 +68,9 @@ public class Employee {
         this.email = email;
     }
 
-    public String getPhoneNo() {
-        return phoneNo;
-    }
+   
 
-    public void setPhoneNo(String phoneNo) {
-        this.phoneNo = phoneNo;
-    }
-
-    public Date getJoiningDate() {
-        return joiningDate;
-    }
-
-    public void setJoiningDate(Date joiningDate) {
-        this.joiningDate = joiningDate;
-    }
+   
 
     public double getSalary() {
         return salary;
@@ -77,10 +80,32 @@ public class Employee {
         this.salary = salary;
     }
 
-    @Override
-    public String toString() {
-        return "Employee [empId=" + empId + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", phoneNo=" + phoneNo
-                + ", joiningDate=" + joiningDate + ", salary=" + salary + "]";
-    }
+	public LocalDate getJoiningDate() {
+		return joiningDate;
+	}
+
+	public void setJoiningDate(LocalDate joiningDate) {
+		this.joiningDate = joiningDate;
+	}
+
+	public List<String> getPhoneNumbers() {
+		return phoneNumbers;
+	}
+
+	public void setPhoneNumbers(List<String> phoneNumbers) {
+		this.phoneNumbers = phoneNumbers;
+	}
+
+	@Override
+	public String toString() {
+		return "Employee [empId=" + empId + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+				+ ", phoneNumbers=" + phoneNumbers + ", joiningDate=" + joiningDate + ", salary=" + salary + "]";
+	}
+
+	
+
+
+   
+   
 
 }
